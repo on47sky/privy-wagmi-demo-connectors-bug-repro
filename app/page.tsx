@@ -25,9 +25,9 @@ import WalletClient from 'components/WalletClient';
 import WatchPendingTransactions from 'components/WatchPendingTransactions';
 import {shorten} from 'lib/utils';
 import Image from 'next/image';
-import {useAccount, useDisconnect} from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
-import {usePrivy, useWallets} from '@privy-io/react-auth';
+import { type ConnectorManager, type PrivyInterface, usePrivy, useWallets } from '@privy-io/react-auth'
 import {useSetActiveWallet} from '@privy-io/wagmi';
 
 import wagmiPrivyLogo from '../public/wagmi_privy_logo.png';
@@ -38,13 +38,18 @@ const MonoLabel = ({label}: {label: string}) => {
 
 export default function Home() {
   // Privy hooks
-  const {ready, user, authenticated, login, connectWallet, logout, linkWallet} = usePrivy();
+  const {ready, user, authenticated, login, connectWallet, logout, linkWallet, walletConnectors} = usePrivy() as PrivyInterface & { walletConnectors: ConnectorManager };
   const {wallets, ready: walletsReady} = useWallets();
 
   // WAGMI hooks
   const {address, isConnected, isConnecting, isDisconnected} = useAccount();
   const {disconnect} = useDisconnect();
   const {setActiveWallet} = useSetActiveWallet();
+
+  const { connectors } = useConnect()
+
+  console.log('=== wagmi web3 connectors', connectors)
+  console.log('=== privy web3 connectors', walletConnectors?.walletConnectors)
 
   if (!ready) {
     return null;
